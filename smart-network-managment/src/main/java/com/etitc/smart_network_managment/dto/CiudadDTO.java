@@ -1,16 +1,23 @@
 package com.etitc.smart_network_managment.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Data
+@EqualsAndHashCode(of = "id")
 public class CiudadDTO {
-    private String nombre;
-    private String pais;
-    private Integer poblacion;
+
+    private Integer id;
+
+    private String name;
+
+    private String description;
+
+    private Double surface;
+
+    private Integer population;
+
+    private String postalCode;
+
+    private Integer departmentId;
 }

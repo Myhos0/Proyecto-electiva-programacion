@@ -1,29 +1,14 @@
 package com.etitc.smart_network_managment.model;
 
-import jakarta.persistence.*;
+import com.etitc.smart_network_managment.dto.CiudadDTO;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
 
-@Entity
-@Table(name = "rutas")
-@Setter
-@Getter
-@NoArgsConstructor
+@Data
 @AllArgsConstructor
 public class Ruta {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private CiudadDTO destino;
 
-    @Column
-    private String inicio;
-
-    @Column
-    private String destino;
-
-    @Column
-    private Integer duracionRecorrido;
+    private int tiempo;
 }

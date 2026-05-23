@@ -3,10 +3,13 @@ package com.etitc.smart_network_managment.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 @AllArgsConstructor
-public class RutaDTO {
+public class CiudadRutaDTO {
 
-    private String destino;
-    private int tiempo;
+    private String ciudad;
+
+    private List<RutaDTO> rutas;
 }
