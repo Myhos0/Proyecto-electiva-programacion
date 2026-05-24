@@ -9,6 +9,5 @@ import lombok.Data;
 public class Ruta {
 
     private CiudadDTO destino;
-
     private int tiempo;
 }

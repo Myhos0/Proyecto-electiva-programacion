@@ -21,6 +21,10 @@ public class Grafo {
 
     public void agregarRuta(CiudadDTO origen,CiudadDTO destino,int tiempo)
     {
+        agregarCiudad(origen);
+
+        agregarCiudad(destino);
+
         grafo.get(origen).add(new Ruta(destino,tiempo));
 
         grafo.get(destino).add(new Ruta(origen,tiempo));

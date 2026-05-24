@@ -7,9 +7,8 @@ import java.util.List;
 
 @Data
 @AllArgsConstructor
-public class CiudadRutaDTO {
+public class CiudadGrafoDTO {
 
-    private String ciudad;
-
-    private List<RutaDTO> rutas;
+    private CiudadDTO ciudad;
+    private List<ConexionDTO> conexiones;
 }

@@ -1,12 +1,11 @@
 package com.etitc.smart_network_managment.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
-@AllArgsConstructor
 public class RutaDTO {
 
+    private String origen;
     private String destino;
-    private int tiempo;
+    private Integer tiempo;
 }
