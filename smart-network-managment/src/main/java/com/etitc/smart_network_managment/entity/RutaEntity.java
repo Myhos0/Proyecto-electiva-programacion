@@ -11,7 +11,13 @@ public class RutaEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Integer origenId;
-    private Integer destinoId;
+    @ManyToOne
+    @JoinColumn(name = "origen_id")
+    private CiudadEntity origen;
+
+    @ManyToOne
+    @JoinColumn(name = "destino_id")
+    private CiudadEntity destino;
+
     private Integer tiempo;
 }

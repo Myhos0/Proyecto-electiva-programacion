@@ -51,6 +51,12 @@ public class GrafoController {
         }
     }
 
+    @GetMapping("/ruta-minima")
+    public ResponseEntity<?> rutaMinima(@RequestParam String origen, @RequestParam String destino)
+    {
+        return ResponseEntity.ok(grafoService.calcularRutaMinima(origen, destino));
+    }
+
     @GetMapping
     public ResponseEntity<?> obtenerGrafoActual()
     {

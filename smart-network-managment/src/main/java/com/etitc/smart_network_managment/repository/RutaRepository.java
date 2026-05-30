@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface RutaRepository extends JpaRepository<RutaEntity,Long> {
 
-    boolean existsByOrigenIdAndDestinoIdAndTiempo(
+    boolean existsByOrigen_IdAndDestino_IdAndTiempo(
             Integer origenId,
             Integer destinoId,
             Integer tiempo
