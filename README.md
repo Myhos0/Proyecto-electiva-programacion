@@ -1,111 +1,189 @@
 # Smart Network Management
 
-Sistema desarrollado con Spring Boot para la gestión de rutas entre ciudades de Colombia utilizando estructuras de grafos, consumo de APIs externas y persistencia en SQL Server.
+Sistema desarrollado con Spring Boot para la gestión de rutas entre ciudades de Colombia utilizando estructuras de grafos, persistencia en SQL Server y algoritmos de búsqueda de caminos mínimos.
 
 ---
 
-# Descripción del Proyecto
+## Descripción
 
-El proyecto simula una red de ciudades conectadas mediante rutas bidireccionales donde cada conexión posee un tiempo de recorrido.
+Smart Network Management permite modelar una red de ciudades conectadas mediante rutas bidireccionales con tiempos de recorrido asociados.
 
-La aplicación permite:
+El sistema consume información de ciudades desde la API pública de Colombia y permite construir grafos tanto de forma aleatoria como a partir de información almacenada en una base de datos SQL Server.
 
-- Consumir ciudades desde la API pública de Colombia.
-- Crear grafos aleatorios de ciudades.
-- Construir grafos a partir de rutas almacenadas en base de datos.
-- Crear nuevas rutas entre ciudades existentes.
-- Persistir rutas en SQL Server.
-- Consultar la estructura completa del grafo mediante endpoints REST.
+Además, implementa el algoritmo de Dijkstra para calcular la ruta más corta entre dos ciudades.
 
 ---
 
-# Tecnologías Utilizadas
+## Tecnologías Utilizadas
 
-- Java 21
-- Spring Boot
-- Spring WebFlux (`WebClient`)
-- Spring Data JPA
-- SQL Server
-- Maven
-- Lombok
+* Java 21
+* Spring Boot
+* Spring WebFlux (WebClient)
+* Spring Data JPA
+* SQL Server
+* Maven
+* Lombok
 
 ---
 
-# Arquitectura del Proyecto
+## Arquitectura
 
 ```text
 src/main/java/com/etitc/smart_network_managment
 │
 ├── controller
-│   └── GrafoController.java
+│   └── GrafoController
 │
 ├── service
-│   ├── GrafoService.java
-│   └── CiudadService.java
-│
+│   ├── GrafoService
+│   └── CiudadService
+│   └── CiuadadAPIService
+|
 ├── repository
-│   └── RutaRepository.java
+│   ├── RutaRepository
+│   └── CiudadRepository
 │
 ├── entity
-│   └── RutaEntity.java
+│   ├── RutaEntity
+│   └── CiudadEntity
 │
 ├── dto
-│   ├── RutaDTO.java
-│   ├── CiudadDTO.java
-│   ├── ConexionDTO.java
-│   └── CiudadGrafoDTO.java
+│   ├── CiudadDTO
+│   ├── RutaDTO
+│   ├── ConexionDTO
+│   ├── CiudadGrafoDTO
+│   └── RutaMinimaDTO
 │
 ├── graph
-│   ├── Grafo.java
-│   └── Ruta.java
+│   ├── Grafo
+│   ├── Ruta
+│   └── RutaDijkstra
+|
+├── model
+|  └── Ruta  
 │
-└── SmartNetworkManagmentApplication.java
+|
+├── webclient
+|  └── WebClientConfig
+|
+└── SmartNetworkManagmentApplication
 ```
 
 ---
 
-# Funcionalidades
+## Funcionalidades
 
-## 1. Grafo Aleatorio
+### Gestión de Ciudades
 
-Genera automáticamente un grafo con máximo 10 ciudades aleatorias obtenidas desde la API de Colombia.
-
-Cada ciudad queda conectada mediante rutas bidireccionales con tiempos aleatorios.
-
----
-
-## 2. Grafo desde Base de Datos
-
-Construye el grafo utilizando las rutas almacenadas en SQL Server.
-
-Si no existen rutas almacenadas, el sistema genera automáticamente un grafo aleatorio.
+* Obtención de ciudades desde la API Colombia.
+* Búsqueda de ciudades por nombre.
+* Persistencia local de ciudades utilizadas en rutas.
 
 ---
 
-## 3. Creación de Rutas
+### Gestión de Rutas
 
-Permite crear nuevas rutas entre ciudades existentes.
-
-### Validaciones implementadas
-
-- La ciudad origen no puede ser igual al destino.
-- No se permiten rutas duplicadas.
-- Las ciudades deben existir en la API.
-- El grafo se actualiza en memoria y en la base de datos.
+* Creación de rutas entre ciudades existentes.
+* Validación de ciudades origen y destino.
+* Prevención de rutas duplicadas.
+* Almacenamiento de rutas en SQL Server.
+* Actualización automática del grafo en memoria.
 
 ---
 
-# API Externa Utilizada
+### Grafo Aleatorio
 
-Se utiliza la API pública de Colombia:
+Genera un grafo con un máximo de 10 ciudades seleccionadas aleatoriamente desde la API.
 
-https://api-colombia.com/api/v1/city
+Características:
+
+* Selección aleatoria de ciudades.
+* Conexiones bidireccionales.
+* Tiempos de recorrido aleatorios.
+* Conversión automática a DTO para exponer mediante API REST.
 
 ---
 
-# Endpoints
+### Grafo desde Base de Datos
 
-## Obtener grafo actual
+Construye un grafo utilizando las rutas almacenadas en SQL Server.
+
+Características:
+
+* Recuperación de ciudades persistidas.
+* Reconstrucción de conexiones.
+* Actualización dinámica al crear nuevas rutas.
+
+---
+
+### Algoritmo de Dijkstra
+
+Permite calcular la ruta mínima entre dos ciudades.
+
+El algoritmo:
+
+* Calcula el menor tiempo total de recorrido.
+* Reconstruye el camino completo.
+* Funciona tanto para grafos aleatorios como para grafos persistidos.
+
+Ejemplo:
+
+```text
+Bogotá -> Medellín = 5 horas
+Medellín -> Cali = 2 horas
+Bogotá -> Cali = 8 horas
+```
+
+Resultado:
+
+```json
+{
+  "origen": "Bogotá D.C.",
+  "destino": "Cali",
+  "distanciaTotal": 7,
+  "ruta": [
+    "Bogotá D.C.",
+    "Medellín",
+    "Cali"
+  ]
+}
+```
+
+---
+
+## Base de Datos
+
+### Tabla ciudades
+
+```sql
+CREATE TABLE ciudades(
+    id INT PRIMARY KEY,
+    nombre VARCHAR(255)
+);
+```
+
+### Tabla rutas
+
+```sql
+CREATE TABLE rutas(
+    id BIGINT IDENTITY PRIMARY KEY,
+    origen_id INT NOT NULL,
+    destino_id INT NOT NULL,
+    tiempo INT NOT NULL,
+
+    FOREIGN KEY (origen_id)
+        REFERENCES ciudades(id),
+
+    FOREIGN KEY (destino_id)
+        REFERENCES ciudades(id)
+);
+```
+
+---
+
+## Endpoints
+
+### Obtener grafo actual
 
 ```http
 GET /grafo
@@ -113,7 +191,7 @@ GET /grafo
 
 ---
 
-## Obtener grafo aleatorio
+### Obtener grafo aleatorio
 
 ```http
 GET /grafo/aleatorio
@@ -121,7 +199,7 @@ GET /grafo/aleatorio
 
 ---
 
-## Obtener grafo desde base de datos
+### Obtener grafo desde base de datos
 
 ```http
 GET /grafo/bd
@@ -129,17 +207,17 @@ GET /grafo/bd
 
 ---
 
-## Crear nueva ruta
+### Crear nueva ruta
 
 ```http
 POST /grafo/ruta
 ```
 
-### Body
+Body:
 
 ```json
 {
-  "origen": "Bogotá D.C.",
+  "origen": "Bogota",
   "destino": "Medellin",
   "tiempo": 4
 }
@@ -147,9 +225,40 @@ POST /grafo/ruta
 
 ---
 
-# Configuración SQL Server
+### Calcular ruta mínima (Dijkstra)
 
-## application.properties
+```http
+GET /grafo/ruta-minima?origen=Bogota&destino=Cali
+```
+
+Respuesta:
+
+```json
+{
+  "origen": "Bogotá D.C.",
+  "destino": "Cali",
+  "distanciaTotal": 7,
+  "ruta": [
+    "Bogotá D.C.",
+    "Medellín",
+    "Cali"
+  ]
+}
+```
+
+---
+
+## API Externa
+
+Ciudades de Colombia:
+
+https://api-colombia.com/api/v1/city
+
+---
+
+## Configuración SQL Server
+
+application.properties
 
 ```properties
 spring.datasource.url=jdbc:sqlserver://localhost:1433;databaseName=smart_network;encrypt=true;trustServerCertificate=true
@@ -162,91 +271,15 @@ spring.jpa.show-sql=true
 
 ---
 
-# Dependencias Maven
+## Posibles Mejoras
 
-## SQL Server
-
-```xml
-<dependency>
-    <groupId>com.microsoft.sqlserver</groupId>
-    <artifactId>mssql-jdbc</artifactId>
-    <scope>runtime</scope>
-</dependency>
-```
-
+* Persistencia completa de grafos.
+* Swagger/OpenAPI.
+  
 ---
 
-## Lombok
-
-```xml
-<dependency>
-    <groupId>org.projectlombok</groupId>
-    <artifactId>lombok</artifactId>
-    <optional>true</optional>
-</dependency>
-```
-
----
-
-# Ejecución del Proyecto
-
-## 1. Clonar repositorio
-
-```bash
-git clone URL_DEL_REPOSITORIO
-```
-
----
-
-## 2. Instalar dependencias
-
-```bash
-mvn clean install
-```
-
----
-
-## 3. Ejecutar aplicación
-
-```bash
-mvn spring-boot:run
-```
-
----
-
-# Ejemplo de Respuesta
-
-```json
-[
-  {
-    "ciudad": {
-      "id": 694,
-      "name": "Riohacha"
-    },
-    "conexiones": [
-      {
-        "destino": {
-          "id": 574,
-          "name": "Mosquera"
-        },
-        "tiempo": 4
-      }
-    ]
-  }
-]
-```
-
----
-
-# Mejoras Futuras
-
-- Implementar algoritmos de rutas mínimas (Dijkstra).
-- Persistir ciudades en base de datos.
-- Documentación Swagger/OpenAPI.
-
----
-
-# Autor
+## Autor
 
 Miguel Ospina
-Luis Gil
+
+Proyecto académico desarrollado para el estudio de estructuras de datos, grafos, algoritmos de caminos mínimos y desarrollo backend con Spring Boot.
