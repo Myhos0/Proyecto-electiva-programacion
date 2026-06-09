@@ -280,6 +280,7 @@ spring.jpa.show-sql=true
 
 ## Autor
 
-Miguel Ospina
+Luis David Gil Martinez
+Miguel Angel Ospina Paez
 
 Proyecto académico desarrollado para el estudio de estructuras de datos, grafos, algoritmos de caminos mínimos y desarrollo backend con Spring Boot.
